@@ -1,9 +1,8 @@
-import { PAGE_SIZE } from 'constants';
-
 import React from 'react';
 
 import { useRouter } from 'next/router';
 
+import { PAGE_SIZE } from 'constants/index';
 import { Pool } from 'interfaces/Pool';
 import { formatCurrency, formatTokenSymbol } from 'utils/formatter';
 
@@ -12,9 +11,10 @@ import Pagination from './Pagination';
 
 interface IPoolListProps {
   data: Pool[];
+  loading: boolean;
 }
 
-const PoolList: React.FC<IPoolListProps> = ({ data }) => {
+const PoolList: React.FC<IPoolListProps> = ({ data, loading }) => {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [filteredData, setFilteredData] = React.useState<Pool[]>([]);
   const router = useRouter();
@@ -52,37 +52,41 @@ const PoolList: React.FC<IPoolListProps> = ({ data }) => {
         <span>TVL (USD)</span>
         <span>Volume (USD)</span>
       </div>
-      {filteredData.map((info) => (
-        <div
-          key={`pool-list-info-${info.id}`}
-          className="grid grid-cols-pool-list border-b border-gray-800 h-16 items-center cursor-pointer"
-          onClick={handlePoolDetails(info.id)}
-        >
-          <div className="flex items-center">
-            <CoinLogo address={info.token0.id} size={24} />
-            <CoinLogo address={info.token1.id} size={24} />
-            <span className="ml-2">
-              {formatTokenSymbol(info.token0.symbol)}/
-              {formatTokenSymbol(info.token1.symbol)}
-            </span>
-          </div>
-          <div className="uppercase">{info.txCount}</div>
-          <div className="uppercase">
-            {formatCurrency(parseFloat(info.totalValueLockedUSD))}
-          </div>
-          <div className="uppercase">
-            {formatCurrency(parseFloat(info.volumeUSD))}
-          </div>
+      {loading
+        ? 'Loading...'
+        : filteredData.map((info) => (
+            <div
+              key={`pool-list-info-${info.id}`}
+              className="grid grid-cols-pool-list border-b border-gray-800 h-16 items-center cursor-pointer"
+              onClick={handlePoolDetails(info.id)}
+            >
+              <div className="flex items-center">
+                <CoinLogo address={info.token0.id} size={24} />
+                <CoinLogo address={info.token1.id} size={24} />
+                <span className="ml-2">
+                  {formatTokenSymbol(info.token0.symbol)}/
+                  {formatTokenSymbol(info.token1.symbol)}
+                </span>
+              </div>
+              <div className="uppercase">{info.txCount}</div>
+              <div className="uppercase">
+                {formatCurrency(parseFloat(info.totalValueLockedUSD))}
+              </div>
+              <div className="uppercase">
+                {formatCurrency(parseFloat(info.volumeUSD))}
+              </div>
+            </div>
+          ))}
+      {!loading && (
+        <div className="flex items-center justify-center h-16">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPrev={handlePrevPage}
+            onNext={handleNextPage}
+          />
         </div>
-      ))}
-      <div className="flex items-center justify-center h-16">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPrev={handlePrevPage}
-          onNext={handleNextPage}
-        />
-      </div>
+      )}
     </div>
   );
 };

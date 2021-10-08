@@ -2,11 +2,14 @@ import React from 'react';
 
 import { useQuery, gql } from '@apollo/client';
 import { useRouter } from 'next/router';
+import { toast, ToastContainer } from 'react-toastify';
 
 import CoinLogo from 'components/CoinLogo';
 import Transactions from 'components/Transactions';
 import { Main } from 'templates/Main';
 import { formatTokenSymbol, formatCurrency } from 'utils/formatter';
+
+import { addToWatchlist } from '../../utils/storage';
 
 const POOL_QUERY = (id: string) =>
   gql(`
@@ -41,6 +44,17 @@ const PoolDetail = () => {
     router.push('/pools');
   }, [router]);
 
+  const handleAddToWatchlist = React.useCallback(() => {
+    const added = addToWatchlist(id as string);
+    if (added) {
+      toast.success('Added to watchlist!');
+      console.log('hey');
+    } else {
+      toast.warn('Already in the watchlist!');
+      console.log('fail');
+    }
+  }, [id]);
+
   return (
     <Main>
       <div className="flex flex-col mt-4">
@@ -65,7 +79,10 @@ const PoolDetail = () => {
                   {formatTokenSymbol(data.pool.token1.symbol)}
                 </span>
               </div>
-              <div className="bg-blue-700 rounded-lg p-2 text-white cursor-pointer">
+              <div
+                className="bg-blue-700 rounded-lg p-2 text-white cursor-pointer"
+                onClick={handleAddToWatchlist}
+              >
                 Add to watch list
               </div>
             </div>
@@ -91,10 +108,11 @@ const PoolDetail = () => {
               </div>
               <div>{data.pool.token1.txCount}</div>
             </div>
-            <Transactions address={id as string} />
           </>
         )}
+        <Transactions address={id as string} />
       </div>
+      <ToastContainer />
     </Main>
   );
 };

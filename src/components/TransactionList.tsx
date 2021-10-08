@@ -1,7 +1,6 @@
-import { PAGE_SIZE } from 'constants';
-
 import React from 'react';
 
+import { PAGE_SIZE } from 'constants/index';
 import type { Transaction } from 'interfaces/Transaction';
 import {
   formatCurrency,
